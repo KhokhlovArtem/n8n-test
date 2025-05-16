@@ -1,0 +1,61 @@
+---
+- name: Установка Docker на Ubuntu 24
+  hosts: all
+  become: yes
+  tasks:
+    - name: Обновление кэша APT
+      apt:
+        update_cache: yes
+
+    - name: Установка зависимостей для добавления репозитория Docker
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg
+          - lsb-release
+        state: present
+
+    - name: Добавление GPG-ключа Docker
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg 
+        state: present
+
+    - name: Добавление репозитория Docker
+      apt_repository:
+        repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu  {{ ansible_distribution_release }} stable"
+        state: present
+
+    - name: Обновление кэша APT после добавления репозитория
+      apt:
+        update_cache: yes
+
+    - name: Установка Docker
+      apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+        state: present
+
+    - name: Запуск и включение службы Docker
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Добавление пользователя в группу docker
+      user:
+        name: "{{ ansible_user }}"
+        groups: docker
+        append: yes
+
+    - name: Перезагрузка для применения изменений группы docker
+      reboot:
+        msg: "Rebooting to apply docker group changes"
+        connect_timeout: 5
+        reboot_timeout: 600
+        pre_reboot_delay: 0
+        post_reboot_delay: 30
+      when: "'docker' in ansible_user_groups"
