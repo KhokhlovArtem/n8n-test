@@ -1,21 +1,27 @@
-version: '3.8'
 services:
   n8n:
     container_name: n8n
     image: n8nio/n8n:latest
-    restart: always
-    user: root 
-    command: bash -c "
-      echo 'Installing dependencies...' &&
-      npm install @sberdevices/giga-chat &&
-      n8n start
-    "
+    restart: unless-stopped  
     ports:
-      - '5678:5678' 
+      - '5678:5678'
     volumes:
-      - './data:/home/node/.n8n' 
+      - './data:/home/node/.n8n' # Для базы n8n
+      - './local-files:/files'   # Для работы с локальными файлами
     environment:
-      NODE_ENV: production
-      N8N_BASIC_AUTH_ACTIVE: true
-      N8N_BASIC_AUTH_USER: admin
-      N8N_BASIC_AUTH_PASSWORD: password
+      - NODE_ENV=production
+      #- N8N_PROTOCOL=https  # Если используете reverse proxy с HTTPS
+      #- WEBHOOK_URL=https://your-domain.com  # Ваш домен для webhooks
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=${N8N_USER:-admin}  # Используйте переменные окружения
+      - N8N_BASIC_AUTH_PASSWORD=${N8N_PASSWORD}  # ОБЯЗАТЕЛЬНО задайте через .env
+      - N8N_ENCRYPTION_KEY=${N8N_ENCRYPTION_KEY}  # Для шифрования учетных данных
+      - GENERIC_TIMEZONE=Europe/Moscow  # Ваш часовой пояс
+      - N8N_METRICS=true  # Метрики для мониторинга
+      - N8N_DIAGNOSTICS_ENABLED=false  # Отправка диагностических данных
+    healthcheck:  # Добавление healthcheck
+      test: ["CMD", "curl", "-f", "http://localhost:5678/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    # Уберите команду command - создайте свой Dockerfile для установки зависимостей

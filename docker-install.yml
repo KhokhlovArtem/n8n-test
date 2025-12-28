@@ -1,3 +1,4 @@
+# Docker install by ansible
 ---
 - name: Установка Docker на Ubuntu 24
   hosts: all
