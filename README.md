@@ -1,4 +1,4 @@
-## 1. Запус
+## 1. Запуск
 ```Bash
 docker compose up --build -d
 ```
