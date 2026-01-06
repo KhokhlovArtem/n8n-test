@@ -1,21 +1,22 @@
-version: '3.8'
 services:
   n8n:
+    build: .
     container_name: n8n
-    image: n8nio/n8n:latest
-    restart: always
-    user: root 
-    command: bash -c "
-      echo 'Installing dependencies...' &&
-      npm install @sberdevices/giga-chat &&
-      n8n start
-    "
+    restart: unless-stopped
     ports:
-      - '5678:5678' 
+      - '5678:5678'
     volumes:
-      - './data:/home/node/.n8n' 
+      - config-data:/home/node/.n8n
     environment:
       NODE_ENV: production
-      N8N_BASIC_AUTH_ACTIVE: true
-      N8N_BASIC_AUTH_USER: admin
-      N8N_BASIC_AUTH_PASSWORD: password
+      N8N_BASIC_AUTH_ACTIVE: ${N8N_BASIC_AUTH_ACTIVE}
+      N8N_BASIC_AUTH_USER: ${N8N_BASIC_AUTH_USER}
+      N8N_BASIC_AUTH_PASSWORD: ${N8N_BASIC_AUTH_PASSWORD}
+      N8N_HOST: ${N8N_HOST}
+      N8N_PORT: ${N8N_PORT}
+      N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS: true
+      N8N_RUNNERS_ENABLED: true
+      N8N_SECURE_COOKIE: false
+
+volumes:
+  config-data:
