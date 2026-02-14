@@ -1,1 +1,8 @@
 .env
+certbot/conf/
+certbot/www/
+scripts/*.log
+*.swp
+*.swo
+*~
+.DS_Store
