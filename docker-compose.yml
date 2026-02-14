@@ -4,7 +4,7 @@ services:
     container_name: n8n
     restart: unless-stopped
     expose:
-      - "5678"  # Изменено с ports на expose
+      - "5678" 
     volumes:
       - config-data:/home/node/.n8n
     environment:
@@ -21,8 +21,7 @@ services:
       WEBHOOK_URL: https://${N8N_HOST}
     networks:
       - n8n-network
-    depends_on:
-      - nginx
+
 
   nginx:
     image: nginx:alpine
@@ -38,8 +37,8 @@ services:
     networks:
       - n8n-network
     depends_on:
-      - n8n
-
+      - n8n      
+    
   certbot:
     image: certbot/certbot
     container_name: n8n-certbot

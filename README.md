@@ -37,10 +37,8 @@ nano .env
 
 ### 2. Получение SSL сертификата
 ```bash
-# Сделать скрипт исполняемым
+# Сделать скрипт исполняемым и выполнить
 chmod +x scripts/init-letsencrypt.sh
-
-# Запустить получение сертификата
 ./scripts/init-letsencrypt.sh
 ```
 
