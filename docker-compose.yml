@@ -1,6 +1,8 @@
 services:
   n8n:
+    build: .
     container_name: n8n
+
     image: n8nio/n8n:latest
     restart: unless-stopped  
     ports:
