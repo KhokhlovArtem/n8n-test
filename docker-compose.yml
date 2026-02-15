@@ -43,7 +43,8 @@ services:
     networks:
       - n8n-network
     depends_on:
-      - n8n
+      n8n:
+        condition: service_started
     profiles:
       - full  # Запускается только в profile "full"
 
