@@ -4,7 +4,7 @@ services:
     container_name: n8n
     restart: unless-stopped
     expose:
-      - "5678" 
+      - "5678"
     volumes:
       - config-data:/home/node/.n8n
     environment:
@@ -22,25 +22,24 @@ services:
     networks:
       - n8n-network
 
+  nginx:
+    image: nginx:alpine
+    container_name: n8n-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf.template:/etc/nginx/templates/nginx.conf.template:ro
+      - ./certbot/www:/var/www/certbot:ro
+      - ./certbot/conf:/etc/letsencrypt:ro
+    environment:
+      - N8N_HOST=${N8N_HOST}
+    networks:
+      - n8n-network
+    depends_on:
+      - n8n
 
-nginx:
-  image: nginx:alpine
-  container_name: n8n-nginx
-  restart: unless-stopped
-  ports:
-    - "80:80"
-    - "443:443"
-  volumes:
-    - ./nginx/nginx.conf.template:/etc/nginx/templates/nginx.conf.template:ro
-    - ./certbot/www:/var/www/certbot:ro
-    - ./certbot/conf:/etc/letsencrypt:ro
-  environment:
-    - N8N_HOST=${N8N_HOST}  # Передаем переменную
-  networks:
-    - n8n-network
-  depends_on:
-    - n8n
-    
   certbot:
     image: certbot/certbot
     container_name: n8n-certbot
