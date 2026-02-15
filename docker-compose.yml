@@ -1,4 +1,5 @@
 services:
+  # Основной сервис n8n (всегда запускается)
   n8n:
     build: .
     container_name: n8n
@@ -21,7 +22,10 @@ services:
       WEBHOOK_URL: https://${N8N_HOST}
     networks:
       - n8n-network
+    profiles:
+      - full  # Запускается только в profile "full"
 
+  # Основной nginx с HTTPS (запускается в profile "full")
   nginx:
     image: nginx:alpine
     container_name: n8n-nginx
@@ -40,6 +44,10 @@ services:
       - n8n-network
     depends_on:
       - n8n
+    profiles:
+      - full  # Запускается только в profile "full"
+
+  # Certbot для обновления сертификатов (запускается в profile "full")
   certbot:
     image: certbot/certbot
     container_name: n8n-certbot
@@ -52,6 +60,26 @@ services:
       - n8n-network
     depends_on:
       - nginx
+    profiles:
+      - full  # Запускается только в profile "full"
+
+  # Временный nginx для первого запуска (только HTTP)
+  nginx-first-run:
+    image: nginx:alpine
+    container_name: n8n-nginx-first-run
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/templates/first-run:/etc/nginx/templates:ro
+      - ./certbot/www:/var/www/certbot:ro
+    environment:
+      - NGINX_ENVSUBST_TEMPLATE_DIR=/etc/nginx/templates
+      - N8N_HOST=${N8N_HOST}
+    networks:
+      - n8n-network
+    profiles:
+      - first-run  # Запускается только при FIRST_RUN=true
 
 networks:
   n8n-network:
